@@ -133,6 +133,8 @@ module Resque
           Resque.queue_from_class(
             Resque::Scheduler::Util.constantize(class_name)
           )
+        rescue NameError
+          "(unknown)"
         end
 
         def find_job(worker)
