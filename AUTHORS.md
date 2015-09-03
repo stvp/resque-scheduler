@@ -20,6 +20,7 @@ Resque Scheduler authors
 - David Doan
 - David Yang
 - Denis Yagofarov
+- dtaniwaki
 - Evan Tahler
 - Eugene Batogov
 - Giovanni Cappellotto
@@ -36,6 +37,7 @@ Resque Scheduler authors
 - Joshua Szmajda
 - Justin Weiss
 - Les Hill
+- Luke Rodgers
 - Manuel Meurer
 - Matt Aimonetti
 - Matt Simpson
@@ -56,8 +58,10 @@ Resque Scheduler authors
 - Scott Francis
 - Sebastian Kippe
 - Spring MC
+- tbprojects
 - Tim Liner
 - Tony Lewis
+- Tom Crayford
 - Vincent Zhu
 - Vladislav Shub
 - V Sreekanth

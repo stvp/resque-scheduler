@@ -11,14 +11,6 @@ resque-scheduler
 Resque-scheduler is an extension to [Resque](http://github.com/resque/resque)
 that adds support for queueing items in the future.
 
-This table explains the version requirements for redis
-
-| resque-scheduler version | required redis gem version|
-|:-------------------------|----------------------:|
-| ~> 2.0                   | >= 3.0.0              |
-| >= 0.0.1                 | ~> 1.3                |
-
-
 Job scheduling is supported in two different way: Recurring (scheduled) and
 Delayed.
 
@@ -71,10 +63,13 @@ require 'resque/scheduler/tasks'
 namespace :resque do
   task :setup do
     require 'resque'
-    require 'resque-scheduler'
 
     # you probably already have this somewhere
     Resque.redis = 'localhost:6379'
+  end
+
+  task :setup_schedule => :setup do
+    require 'resque-scheduler'
 
     # If you want to be able to dynamically change the schedule,
     # uncomment this line.  A dynamic schedule can be updated via the
@@ -95,6 +90,8 @@ namespace :resque do
     # So, something like this:
     require 'jobs'
   end
+
+  task :scheduler => :setup_schedule
 end
 ```
 
@@ -151,7 +148,7 @@ default `'text'`)
 of `MonoLogger::DEBUG`, default `false`)
 
 
-### Resque Pool integration 
+### Resque Pool integration
 
 For normal work with the
 [resque-pool](https://github.com/nevans/resque-pool) gem, add the
@@ -183,7 +180,7 @@ a worker is available (just like any other resque job).
 
 NOTE: The job does not fire **exactly** at the time supplied.  Rather, once that
 time is in the past, the job moves from the delayed queue to the actual resque
-work queue and will be completed as workers as free to process it.
+work queue and will be completed as workers are free to process it.
 
 Also supported is `Resque.enqueue_at` which takes a timestamp to queue the
 job, and `Resque.enqueue_at_with_queue` which takes both a timestamp and a
@@ -221,6 +218,17 @@ Resque.enqueue_at(5.days.from_now, SendFollowUpEmail, :account_id => current_acc
 Resque.remove_delayed_selection { |args| args[0]['account_id'] == current_account.id }
 # or remove jobs matching just the user:
 Resque.remove_delayed_selection { |args| args[0]['user_id'] == current_user.id }
+```
+
+If you need to enqueue immediately a delayed job based on some matching arguments, but don't wish to specify each argument from when the job was created, you can do like so:
+
+``` ruby
+# after you've enqueued a job like:
+Resque.enqueue_at(5.days.from_now, SendFollowUpEmail, :account_id => current_account.id, :user_id => current_user.id)
+# enqueue immediately jobs matching just the account:
+Resque.enqueue_delayed_selection { |args| args[0]['account_id'] == current_account.id }
+# or enqueue immediately jobs matching just the user:
+Resque.enqueue_delayed_selection { |args| args[0]['user_id'] == current_user.id }
 ```
 
 ### Scheduled Jobs (Recurring Jobs)
@@ -442,7 +450,7 @@ end
 *>= 2.0.1 only.  Prior to 2.0.1, it is not recommended to run multiple resque-scheduler processes and will result in duplicate jobs.*
 
 You may want to have resque-scheduler running on multiple machines for
-redudancy.  Electing a master and failover is built in and default.  Simply
+redundancy.  Electing a master and failover is built in and default.  Simply
 run resque-scheduler on as many machine as you want pointing to the same
 redis instance and schedule.  The scheduler processes will use redis to
 elect a master process and detect failover when the master dies.  Precautions are
@@ -463,7 +471,9 @@ run, leading to undesired behaviour. To allow different scheduler configs run at
 on one redis, you can either namespace your redis connections, or supply an environment variable
 to split the shared lock key resque-scheduler uses thus:
 
-    RESQUE_SCHEDULER_MASTER_LOCK_PREFIX=MyApp: rake resque:scheduler
+``` bash
+RESQUE_SCHEDULER_MASTER_LOCK_PREFIX=MyApp: rake resque:scheduler
+```
 
 ### resque-web Additions
 
@@ -601,11 +611,34 @@ vagrant up
 
 ### Deployment Notes
 
-It is recommended that a production deployment of resque_scheduler be hosted on
-a dedicated Redis database.  While making and managing scheduled tasks, 
-resque_scheudler currently scans the entire Redis keyspace, which may cause latency 
-and stability issues if resque_scheduler is hosted on a Redis instance storing a large 
-number of keys (such as those written by a different system hosted on the same Redis instance).
+It is recommended that a production deployment of `resque-scheduler` be hosted
+on a dedicated Redis database.  While making and managing scheduled tasks,
+`resque-scheduler` currently scans the entire Redis keyspace, which may cause
+latency and stability issues if `resque-scheduler` is hosted on a Redis instance
+storing a large number of keys (such as those written by a different system
+hosted on the same Redis instance).
+
+#### Compatibility Notes
+
+Different versions of the `redis` and `rufus-scheduler` gems are needed
+depending on your version of `resque-scheduler`.  This is typically not a
+problem with `resque-scheduler` itself, but when mixing dependencies with an
+existing application.
+
+This table explains the version requirements for redis gem
+
+| resque-scheduler | redis gem  |
+|:-----------------|-----------:|
+| `~> 2.0`         | `>= 3.0.0` |
+| `>= 0.0.1`       | `~> 1.3`   |
+
+This table explains the version requirements for rufus-scheduler
+
+| resque-scheduler | rufus-scheduler |
+|:-----------------|----------------:|
+| `~> 4.0`         | `~> 3.0`        |
+| `< 4.0`          | `~> 2.0`        |
+
 
 ### Contributing
 

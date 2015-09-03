@@ -153,8 +153,8 @@ context 'Cli' do
   end
 
   test 'initializes logfile from the env' do
-    cli = new_cli([], 'LOGFILE' => 'derp.log')
-    assert_equal('derp.log', cli.send(:options)[:logfile])
+    cli = new_cli([], 'LOGFILE' => 'example.log')
+    assert_equal('example.log', cli.send(:options)[:logfile])
   end
 
   test 'defaults to nil logfile' do
@@ -222,5 +222,10 @@ context 'Cli' do
   test 'runs Resque::Scheduler' do
     Resque::Scheduler.expects(:run)
     Resque::Scheduler::Cli.run!([], {})
+  end
+
+  test 'does not create keys for unspecified environment variables' do
+    cli = new_cli([], 'DYNAMIC_SCHEDULE' => 'true')
+    assert_equal({ dynamic: 'true' }, cli.send(:options))
   end
 end

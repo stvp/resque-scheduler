@@ -1,5 +1,21 @@
 # Resque Scheduler History / ChangeLog / Release Notes
 
+## 4.0.0 (2014-12-21)
+* Bump rufus-scheduler dependency to `~> 3.0`
+* Address warning from redis-namespace related to `#unwatch`
+* Show current master in the web UI
+* Bugfix related to schedule check when no jobs are in the queue
+* Documentation updates
+
+## 3.1.0 (2014-12-21)
+* Note in README.md about production redis deployment configuration
+* Bugfix to only override configuration options if provided
+* Avoid use of redis `KEYS` command in `Resque.remove_delayed_selection`
+* Better PID file cleanup
+* Added option to filter by job class in `Resque.remove_delayed_selection`
+* Bugfix to only release master lock if it belongs to us
+* Tell-don't-ask with `Resque.schedule` to enable atomic clear & set
+
 ## 3.0.0 (2014-05-27)
 * The grand re-namespacing of
 `resque_scheduler/(.*)` =&gt; `resque/scheduler/\1`
